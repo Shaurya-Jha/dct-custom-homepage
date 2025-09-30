@@ -2,7 +2,8 @@
 # name: dct-custom-homepage
 # about: simple /home + redirect /
 # version: 0.0.1
-# authors: You
+# authors: Shaurya Jha
+# url: https://github.com/Shaurya-Jha/dct-custom-homepage.git
 
 # comment this out unless you actually created the setting in settings.yml
 # enabled_site_setting :dct_custom_homepage_enabled
