@@ -1,0 +1,9 @@
+en:
+  admin_js:
+    admin:
+      site_settings:
+        categories:
+          dct_custom_homepage: "Dct Custom Homepage"
+  js:
+    dct_custom_homepage:
+      placeholder: placeholder

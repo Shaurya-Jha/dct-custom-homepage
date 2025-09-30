@@ -1,0 +1,350 @@
+<style>
+  :root {
+    /* tweak as you like */
+    --carousel-h: 420px;
+  }
+
+  /* ===== Top-level grid: carousel (top-left), hot (right, spans 2 rows), updates (bottom-left) ===== */
+  .main-container {
+    width: 100%;
+    margin: 0 auto 20px auto;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(220px, 28%); /* right is a bit narrower */
+    grid-template-rows: var(--carousel-h) auto;
+    grid-template-areas:
+      "carousel hot"
+      "updates  hot";
+    gap: 20px;
+    box-sizing: border-box;
+    overflow: visible;
+  }
+  .main-container > * { min-width: 0; }
+
+  /* area placement */
+  .left-carousel { grid-area: carousel; }
+  .left-updates  { grid-area: updates; }
+  .right-hot     { grid-area: hot; align-self: start; }
+  @supports (grid-template-areas: "a b") {
+    .right-hot { grid-row: 1 / span 2; } /* ensure it spans both rows */
+  }
+
+  @media (max-width: 1200px) {
+    .main-container {
+      grid-template-columns: minmax(0, 1fr) minmax(200px, 34%);
+      gap: 16px;
+    }
+  }
+  @media (max-width: 900px) {
+    .main-container {
+      grid-template-columns: 1fr;
+      grid-template-rows: auto auto auto;
+      grid-template-areas:
+        "carousel"
+        "hot"
+        "updates";
+    }
+    .right-hot { grid-row: auto; }
+  }
+
+  /* ===== Boxes ===== */
+  .section-box {
+    background: var(--secondary);
+    border: 1px solid var(--d-hover);
+    margin: 0;
+    border-radius: 10px;
+    overflow: hidden;
+    color: var(--primary);
+    height: auto; /* natural height per content; all three can differ */
+  }
+
+  .box-header {
+    background-color: var(--tertiary);
+    color: var(--secondary);
+    padding: 8px 15px;
+    font-weight: bold;
+    font-size: 1.1rem;
+    border-radius: 10px 10px 0 0;
+  }
+
+  .box-content { padding: 0; }
+
+  /* ===== Carousel ===== */
+  .carousel-container {
+    position: relative;
+    width: 100%;
+    height: var(--carousel-h); /* fixed tall block on desktop */
+    overflow: hidden;
+    border-radius: 8px;
+    margin: 0;
+  }
+  .carousel-track {
+    display: flex;
+    transition: transform 0.6s ease-in-out;
+    will-change: transform;
+    height: 100%;
+  }
+  .carousel-item {
+    min-width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+    position: relative;
+  }
+  .carousel-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .caption {
+    position: absolute;
+    inset: auto 0 0 0;
+    background: #222;
+    color: #fff;
+    padding: 0.5rem 1rem;
+    font-weight: 600;
+  }
+  @media (max-width: 600px) {
+    .carousel-container { height: 250px; } /* fixed height on very small screens */
+  }
+
+  /* ===== Tabs (Categories) ===== */
+  .news-tabs {
+    display: flex;
+    gap: 8px;
+    background-color: transparent;
+    border-bottom: 1px solid var(--d-hover);
+  }
+  .news-tabs a {
+    flex: 1 1 0;
+    text-align: center;
+    color: var(--primary);
+    text-decoration: none;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 6px;
+    background: rgba(0, 0, 0, 0);
+    transition: background 0.15s;
+    padding: 10px 0;
+  }
+  .news-tabs a.active {
+    background-color: var(--d-hover);
+    color: var(--primary);
+  }
+
+  /* ===== Grid/cards for category topics ===== */
+  .news-grid {
+    display: grid;
+    gap: 15px;
+    margin-top: 15px;
+    padding: 0 20px 20px;
+    grid-template-columns: repeat(var(--cols, 3), 1fr);
+  }
+  .news-grid.cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  @media (max-width: 1200px) { .news-grid.cols-3 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 900px)  { .news-grid.cols-3 { grid-template-columns: 1fr; } }
+
+  .news-item {
+    background: var(--primary);
+    padding: 10px;
+    border-radius: 6px;
+    border: 1px solid #333;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    min-height: 160px;
+  }
+  .news-item .thumb {
+    position: relative;
+    display: block;
+    width: 100%;
+    overflow: hidden;
+    border-radius: 4px;
+  }
+  .news-item .thumb img {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16/9;
+    object-fit: cover;
+    display: block;
+  }
+  .news-item .play-overlay {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    background: var(--primary);
+    color: var(--secondary);
+    font-weight: 700;
+    font-size: 20px;
+    padding: 8px 12px;
+    border-radius: 999px;
+    pointer-events: none;
+  }
+  .news-item .title {
+    color: var(--secondary);
+    text-decoration: none;
+    font-weight: 600;
+    margin: 8px 0 6px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .news-item .meta {
+    font-size: 0.85rem;
+    color: var(--secondary);
+  }
+
+  /* ===== View all link ===== */
+  .view-all { text-align: right; margin: 10px 20px 20px; }
+  .view-all a { color: var(--tertiary); text-decoration: none; font-size: 0.9rem; font-weight: bold; }
+  @media (max-width: 900px) { .view-all { text-align: left; } }
+
+  /* ===== Hot threads list (let it grow tall) ===== */
+  .hot-threads ul,
+  .got-bhp ul { list-style: none; padding: 0; margin: 0; }
+  .hot-threads li + li { border-top: 1px solid rgba(255,255,255,0.08); }
+  .hot-threads a {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 15px;
+    color: var(--primary);
+    text-decoration: none;
+    border-radius: 6px;
+    gap: 12px;
+  }
+  .hot-posts-title-area {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--d-hover);
+  }
+
+  /* Tiny screens */
+  @media (max-width: 480px) {
+    .box-header { font-size: 1rem; padding: 8px 10px; }
+  }
+</style>
+
+<div class="wrap">
+  {{! ===== TOP GRID: Carousel (left) + Hot Threads (right, spans down) ===== }}
+  <div class="main-container">
+    {{! LEFT: Carousel (no title) }}
+    <section class="section-box left-carousel">
+      <div class="box-content">
+        {{#if this.model.topics.length}}
+          <div class="carousel-container">
+            <div class="carousel-track" id="carousel-track">
+              {{#each this.model.topics as |t|}}
+                <div class="carousel-item">
+                  <a href={{t.url}}>
+                    <img
+                      src={{t.imageUrl}}
+                      alt={{if t.unicodeTitle t.unicodeTitle t.title}}
+                    />
+                    <div class="caption">{{or t.unicodeTitle t.title}}</div>
+                  </a>
+                </div>
+              {{/each}}
+            </div>
+          </div>
+        {{else}}
+          <p>No image-based top topics this week.</p>
+        {{/if}}
+      </div>
+    </section>
+
+    {{! RIGHT: Hot Threads (narrower column, spans both rows via CSS) }}
+    <aside class="section-box right-hot">
+      <div class="box-header">Hot Posts</div>
+      <div class="box-content hot-threads">
+        {{#if this.model.hotPosts.length}}
+          <ul>
+            {{#each this.model.hotPosts as |t|}}
+            <div class="hot-posts-title-area">
+              <li>
+                <a
+                  href={{t.url}}
+                  title={{if t.unicodeTitle t.unicodeTitle t.title}}
+                >
+                  <span>{{or t.unicodeTitle t.title}}</span>
+                </a>
+              </li>
+              <span style="margin-right: 10px;">&#9654;</span>
+              </div>
+            {{/each}}
+          </ul>
+        {{else}}
+          <p>No hot posts right now.</p>
+        {{/if}}
+      </div>
+    </aside>
+
+    {{! BOTTOM-LEFT: Categories/Updates (same width as carousel, separate box) }}
+    <section class="section-box left-updates">
+      <div class="box-header">News</div>
+      <div class="box-content">
+        {{#if this.model.categories.length}}
+          <nav class="news-tabs" role="tablist" aria-label="Categories">
+            {{#each this.model.categories as |cat idx|}}
+              <a
+                role="tab"
+                id="tab-{{cat.key}}"
+                aria-controls="panel-{{cat.key}}"
+                aria-selected={{if (eq cat.key this.selectedCategory) "true" "false"}}
+                class="{{if (eq cat.key this.selectedCategory) 'active'}}"
+                {{action "selectCategory" cat.key}}
+              >
+                {{cat.title}}
+              </a>
+            {{/each}}
+          </nav>
+
+          <div
+            class="news-grid cols-3"
+            id="panel-{{this.selectedCat.key}}"
+            role="tabpanel"
+            aria-labelledby="tab-{{this.selectedCat.key}}"
+          >
+            {{#if this.selectedCat.topics.length}}
+              {{#each this.selectedCat.topics as |t|}}
+                <article class="news-item">
+                  <a
+                    class="thumb"
+                    href={{t.url}}
+                    title={{if t.unicodeTitle t.unicodeTitle t.title}}
+                  >
+                    <img
+                      src={{t.imageUrl}}
+                      alt={{if t.unicodeTitle t.unicodeTitle t.title}}
+                      loading="lazy"
+                    />
+                  </a>
+                  <a
+                    class="title"
+                    href={{t.url}}
+                    title={{if t.unicodeTitle t.unicodeTitle t.title}}
+                  >
+                    {{or t.unicodeTitle t.title}}
+                  </a>
+                  <div class="meta">
+                    {{#if t.category}}<span>{{t.category}}</span> · {{/if}}
+                    {{#if t.createdAt}}{{t.createdAt}}{{/if}}
+                  </div>
+                </article>
+              {{/each}}
+            {{else}}
+              <p>No topics found.</p>
+            {{/if}}
+          </div>
+
+          <div class="view-all">
+            {{#if (and this.selectedCat.topics.length this.selectedCat.slug)}}
+              <a href="/c/{{this.selectedCat.slug}}">View all</a>
+            {{/if}}
+          </div>
+        {{/if}}
+      </div>
+    </section>
+  </div>
+</div>
