@@ -144,7 +144,7 @@
   @media (max-width: 900px)  { .news-grid.cols-3 { grid-template-columns: 1fr; } }
 
   .news-item {
-    background: var(--primary);
+    background: var(--secondary);
     padding: 10px;
     border-radius: 6px;
     border: 1px solid #333;
@@ -256,7 +256,7 @@
 
     {{! RIGHT: Hot Threads (narrower column, spans both rows via CSS) }}
     <aside class="section-box right-hot">
-      <div class="box-header">Hot Posts</div>
+      <div class="box-header">Trending</div>
       <div class="box-content hot-threads">
         {{#if this.model.hotPosts.length}}
           <ul>
