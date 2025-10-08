@@ -148,7 +148,7 @@
     color: var(--primary);
     padding: 10px;
     border-radius: 6px;
-    border: 1px solid #333;
+    border: 1px solid var(--d-hover);
     display: flex;
     flex-direction: column;
     align-items: stretch;
@@ -250,7 +250,7 @@
             </div>
           </div>
         {{else}}
-          <p>No image-based top topics this week.</p>
+          <p>No top topics for this month.</p>
         {{/if}}
       </div>
     </section>
@@ -276,14 +276,14 @@
             {{/each}}
           </ul>
         {{else}}
-          <p>No hot posts right now.</p>
+          <p>No trending topics right now.</p>
         {{/if}}
       </div>
     </aside>
 
     {{! BOTTOM-LEFT: Categories/Updates (same width as carousel, separate box) }}
     <section class="section-box left-updates">
-      <div class="box-header">News</div>
+      <div class="box-header">Categories</div>
       <div class="box-content">
         {{#if this.model.categories.length}}
           <nav class="news-tabs" role="tablist" aria-label="Categories">
@@ -335,7 +335,7 @@
                 </article>
               {{/each}}
             {{else}}
-              <p>No topics found.</p>
+              <p>No categories found.</p>
             {{/if}}
           </div>
 
