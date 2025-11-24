@@ -34,6 +34,14 @@ const CATEGORIES_TO_SHOW = [
   { key: "technical-stuff", title: "Technical stuff", slug: "technical-stuff" },
 ];
 
+// threads categories to be shown
+const THREAD_CATEGORIES_TO_SHOW = [
+  { key: "owner-reports", title: "Owner reports", slug: "owner-reports" },
+  { key: "travelogues", title: "Travelogues", slug: "travelogues" },
+  { key: "technical-stuff", title: "Technical stuff", slug: "technical-stuff" },
+  { key: "introduce-yourself", title: "Introduce Yourself", slug: "introduce-yourself" },
+];
+
 // fetch topics for a single category slug
 function fetchCategoryTopics(slug, limit = 6) {
   return ajax(`/c/${slug}.json`)
@@ -95,7 +103,7 @@ export default DiscourseRoute.extend({
       // hot posts for the right side banner
       // flat combined topics from all target categories
       combinedTopics: RSVP.all(
-        CATEGORIES_TO_SHOW.map((c) =>
+        THREAD_CATEGORIES_TO_SHOW.map((c) =>
           fetchCategoryTopics(c.slug, 9).then((resp) =>
             // resp is raw topics; map them with category info if you want
             resp.map((t) => ({
