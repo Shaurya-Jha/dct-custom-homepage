@@ -17,6 +17,16 @@ function mapTopic(t) {
   };
 }
 
+function mapCombinedTopic(t) {
+  return {
+    id: t.id,
+    title: t.fancy_title || t.title,
+    slug: t.slug,
+    // Discourse topic URL pattern:
+    url: `/t/${t.slug}/${t.id}`,
+  };
+}
+
 // Define these near the top of your route file (outside export default)
 const CATEGORIES_TO_SHOW = [
   { key: "owner-reports", title: "Owner reports", slug: "owner-reports" },
@@ -26,52 +36,68 @@ const CATEGORIES_TO_SHOW = [
 
 // fetch topics for a single category slug
 function fetchCategoryTopics(slug, limit = 6) {
-  return ajax(`/c/${slug}.json`).then((resp) => {
-    const list =
-      resp?.topic_list?.topics ||
-      (Array.isArray(resp?.topic_list) ? resp.topic_list : null) ||
-      resp?.topics ||
-      resp?.category?.topic_list ||
-      [];
-    return (list || []).slice(0, limit);
-  }).catch(() => []);
+  return ajax(`/c/${slug}.json`)
+    .then((resp) => {
+      const list =
+        resp?.topic_list?.topics ||
+        (Array.isArray(resp?.topic_list) ? resp.topic_list : null) ||
+        resp?.topics ||
+        resp?.category?.topic_list ||
+        [];
+      return (list || []).slice(0, limit);
+    })
+    .catch(() => []);
 }
 
 export default DiscourseRoute.extend({
-    model(){
-        return RSVP.hash({
-            // top 5 monthly for carousel
-            topics: ajax("/top.json", {
-                data: {
-                    period: "monthly",
-                    per_page: 5
-                }
-            }).then((resp) => {
-                const all = (resp?.topic_list?.topics || []).map(mapTopic);
-                return all.filter((t) => !!t.imageUrl).slice(0, 5);
-            }),
+  model() {
+    return RSVP.hash({
+      // top 5 monthly for carousel
+      topics: ajax("/top.json", {
+        data: {
+          period: "monthly",
+          per_page: 5,
+        },
+      }).then((resp) => {
+        const all = (resp?.topic_list?.topics || []).map(mapTopic);
+        return all.filter((t) => !!t.imageUrl).slice(0, 5);
+      }),
 
-            // hot posts for the right side banner
-            hotPosts: ajax("/hot.json", {
-                data: {
-                    per_page: 15
-                }
-            }).then((resp) => {
-                const topics = resp?.topic_list?.topics || [];
-                return topics.slice(0, 15).map(mapTopic)
-            }),
+      // hot posts for the right side banner
+      // flat combined topics from all target categories
+      combinedTopics: RSVP.all(
+        CATEGORIES_TO_SHOW.map((c) =>
+          fetchCategoryTopics(c.slug, 9).then((resp) =>
+            // resp is raw topics; map them with category info if you want
+            resp.map((t) => ({
+              ...mapCombinedTopic(t),
+              categoryKey: c.key,
+              categoryTitle: c.title,
+            }))
+          )
+        )
+      ).then((topicArrays) => topicArrays.flat()),
 
-            // categories with topics
-            categories: RSVP.all(
-                CATEGORIES_TO_SHOW.map((c) =>
-                    fetchCategoryTopics(c.slug, 9).then((resp) => ({
-                        ...c,
-                        topics: resp.map(mapTopic).filter((t) => !!t.imageUrl),
-                    }))
-                )
-            )
-        });
-    },
+      // hotPosts: ajax("/hot.json", {
+      //     data: {
+      //         per_page: 15
+      //     }
+      // }).then((resp) => {
+      //     const topics = resp?.topic_list?.topics || [];
+      //     return topics.slice(0, 15).map(mapTopic)
+      // }),
+
+      // categories with topics
+      categories: RSVP.all(
+        CATEGORIES_TO_SHOW.map((c) =>
+          fetchCategoryTopics(c.slug, 9).then((resp) => ({
+            ...c,
+            topics: resp.map(mapTopic).filter((t) => !!t.imageUrl),
+          }))
+        )
+      ),
+    });
+  },
 
   setupController(controller, model) {
     this._super(controller, model);

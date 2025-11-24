@@ -259,6 +259,26 @@
     <aside class="section-box right-hot">
       <div class="box-header">Trending</div>
       <div class="box-content hot-threads">
+        {{#if @model.combinedTopics.length}}
+          <ul>
+            {{#each @model.combinedTopics as |t|}}
+              <li class="hot-posts-title-area">
+                <a href={{t.url}} title={{t.title}}>
+                  <span>{{t.title}}</span>
+                </a>
+                <span style="margin-right: 10px;">&#9654;</span>
+              </li>
+            {{/each}}
+          </ul>
+        {{else}}
+          <p>No trending topics right now.</p>
+        {{/if}}
+      </div>
+    </aside>
+
+    {{!-- <aside class="section-box right-hot">
+      <div class="box-header">Trending</div>
+      <div class="box-content hot-threads">
         {{#if this.model.hotPosts.length}}
           <ul>
             {{#each this.model.hotPosts as |t|}}
@@ -279,7 +299,7 @@
           <p>No trending topics right now.</p>
         {{/if}}
       </div>
-    </aside>
+    </aside> --}}
 
     {{! BOTTOM-LEFT: Categories/Updates (same width as carousel, separate box) }}
     <section class="section-box left-updates">
