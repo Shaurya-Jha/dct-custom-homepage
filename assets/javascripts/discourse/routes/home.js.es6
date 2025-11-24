@@ -38,16 +38,45 @@ const CATEGORIES_TO_SHOW = [
 function fetchCategoryTopics(slug, limit = 6) {
   return ajax(`/c/${slug}.json`)
     .then((resp) => {
+      const categoryTopicId = resp?.category?.topic_id;
+
       const list =
         resp?.topic_list?.topics ||
         (Array.isArray(resp?.topic_list) ? resp.topic_list : null) ||
         resp?.topics ||
         resp?.category?.topic_list ||
         [];
-      return (list || []).slice(0, limit);
+
+      const filtered = (list || []).filter((t) => {
+        // drop the auto-created "About this category" topic
+        if (categoryTopicId && t.id === categoryTopicId) {
+          return false;
+        }
+
+        // optional: extra safety for any "about-...-category" topic
+        return !(t.slug && t.slug.startsWith("about-") && t.slug.endsWith("-category"));
+
+        // return true;
+      });
+
+      return filtered.slice(0, limit);
     })
     .catch(() => []);
 }
+// ---- old code ----
+// function fetchCategoryTopics(slug, limit = 6) {
+//   return ajax(`/c/${slug}.json`)
+//     .then((resp) => {
+//       const list =
+//         resp?.topic_list?.topics ||
+//         (Array.isArray(resp?.topic_list) ? resp.topic_list : null) ||
+//         resp?.topics ||
+//         resp?.category?.topic_list ||
+//         [];
+//       return (list || []).slice(0, limit);
+//     })
+//     .catch(() => []);
+// }
 
 export default DiscourseRoute.extend({
   model() {
